@@ -60,7 +60,6 @@ def postEstimate(simAgents=10):
         
     randomSeed = paramDict['randomSeed'] 
         
-    print paramDict
         
     ''' Set random seed
     '''
