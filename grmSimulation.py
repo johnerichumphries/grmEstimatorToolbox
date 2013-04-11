@@ -84,6 +84,7 @@ def simulate():
     
     ''' Construct level indicators for outcomes and choices. 
     '''
+    print Y0_beta
     Y1_level = np.dot(Y1_beta, X.T)
     Y0_level = np.dot(Y0_beta, X.T)
     D_level  = np.dot(D_gamma, Z.T)

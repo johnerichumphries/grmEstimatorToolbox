@@ -103,17 +103,22 @@ def estimate():
     
     rslt = fmin_bfgs(_maxAlgorihtmInterface, startVals, \
                      args = (Y, D, X, Z), maxiter = maxiter, \
-                     full_output = True)
-    
+                     full_output = False)
     sys.stdout = sys.__stdout__
-    
+     
     # Construct dictionary with results.
-    rslt = _distributeEvaluationValues(rslt, numCovarsOut, True)
-    
+    rslt = _distributeEvaluationValues(rslt, numCovarsOut, False)
+    rslt['Y1_beta']= rslt['Y1_beta'].tolist()
+    rslt['Y0_beta']= rslt['Y0_beta'].tolist()
+    rslt['D_gamma']= rslt['D_gamma'].tolist()
+    rslt['numAgents']   = numAgents
+    rslt['fileName']    = initDict['fileName']
+    rslt['randomSeed']  = initDict['randomSeed']
+    print initDict
     #  Write out the *.json file.
     with open('grmRslt.json', 'w') as file_:
         
-        json.dump(initDict, file_)
+        json.dump(rslt, file_)
     
 ''' Private Functions.
 '''
