@@ -1,0 +1,51 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath} % Provides miscellaneous improvements in math formulas
+\usepackage{amssymb} % Provides more math symbols
+\usepackage{bm} % Provides more bold math symbols
+\usepackage[margin = 1in]{geometry} % Makes adjustments to page dimensions easier
+\usepackage{bbm} % Adds alternative doublestruck characters
+\usepackage{enumerate} % Makes writing lists easier
+\usepackage{graphicx} % Allows the incorporation of graphics into the document
+\usepackage{cancel} % Allows you to write cancellated symbols
+\usepackage{amsthm} % Allows easier manipulation of theorem environments
+\usepackage{setspace} % Allows finer control over line-spacing
+\usepackage{microtype} % Makes the text look better
+
+\title{Struct. Metrics Final - 2013}
+\author{John Eric Humphries}
+
+\doublespacing
+
+\begin{document}
+
+\maketitle
+
+\section{Overview}
+
+Our assignment was to understand the estimation code, and then to create a function which used simulation to calculate the ATE, TT, and TUT. We were asked to do this using mpi4py.
+
+My submission involves 3 main files, an updated grmEstimation.py file, and grmPostProcessing.py and the required grmPostProcessingmpi.py. All files (including this one!) were pushed with git back to the git-hub page as requested.
+
+\section{Errors or concerns with the code}
+\begin{enumerate}
+\item The code, as downloaded, output the initDict file rather than the results from estimation. This is an error, and an error report was filed on github.
+\item Once you tried to correctly output the rslt structure created by the optimizer, the code no longer works. First, I requested that the optimizer report less information, and the rewrote some of the last code to make it correctly construct a results dictionary.
+\item The grmInit.ini file was set to 10 iterations, so the model was not converging. I changed this to 150 iterations, and the model converges before that, but has an error about feasible tolerance not reached. Looking at the estimates, most are pretty close, and many are correct to several decimal places, but the model misses badly on the intercept terms for $Y_1$ and $Y_0$. I tried to double check the estimation code, but did not see any additional errors.
+\end{enumerate}
+
+\section{Simulation TO Estimate the Treatment Effects.}
+The simulation file estimates ATE TT and TUT in the following way. First, the X and Z variables are drawn (in sets corresponding to a set of X and Z belonging to an agent in our data) from the data with replacement. Next, we use our estimates for our betas and gammas. Next, we use the estimated covariance and variance parameters to draw $U_1$, $U_0$, and $V$ from a multivariate normal distribution. Finally we uses our estimated parameters, our observable characteristics drawn from the data, and unobservables drawn from their estimated distribution to construct new agents which make their decisions following the roy model. So we recover $Y_1$, $Y_0$ and $D$ for each simulated agent. 
+
+
+Using the simulated agents, we calculate:
+$$ATE=\frac{\sum(Y_{1,i} - Y_{0,i})}{N}$$
+$$TT=\frac{\sum_{D=1}(Y_{1,i} - Y_{0,i})}{N_{D=1}}$$
+$$TUT=\frac{\sum_{D=0}(Y_{1,i} - Y_{0,i})}{N_{D=0}}$$
+
+To do these calculation in parallel, I define a new function postEstimate(simAgents=10000), which performs the simulation, and calculates key statistics on however many nodes specified in the mpiexec command, and then combines all of the simulated results into the master ATE, TT, and TUT numbers, which are then written out to a .json file called ests.json.
+
+
+
+\end{document}
+
